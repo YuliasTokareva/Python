@@ -361,9 +361,8 @@ def main():
         elif choice == "3":
             print("Спасибо за использование банка! До свидания!")
             break
-
         else:
             print("Неверный выбор, попробуйте снова")
 
- if __name__ == "__main__":
+if __name__ == "__main__":
      main()
