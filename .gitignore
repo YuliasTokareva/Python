@@ -1,10 +1,10 @@
 venv/
 venv_*/
 __pycache__/
-.pyc
 .xlsx
 .xls
 .csv
 .dat
 data/
+*.pyc
 .DS_Store
