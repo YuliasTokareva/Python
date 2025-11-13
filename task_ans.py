@@ -12,6 +12,7 @@ divisors_dict = {
 
 pending_numbers = [12, 18, 20]
 
+new_divisors_dict = {}
 
 def find_divisors(n):
     return [i for i in range(1, n + 1) if n % i == 0]
@@ -26,7 +27,9 @@ def get_divisors(n):
         pending_numbers.remove(n)
         print(f" Число {n} добавлено. Делители: {divisors}")
     else:
-        print(f" Число {n} не найдено и не запланировано к добавлению.")
+        divisors = find_divisors(n)
+        new_divisors_dict[n] = divisors
+        print(f" Число {n} не было в базе. Добавляем в new_divisors_dict. Д: {divisors}")
 
 while True:
     user_input = input("Введите число : ")
