@@ -1,0 +1,15 @@
+venv/
+.idea
+.env/
+.venv/
+env/
+.htmlcov/
+.coverage
+coverage.xml
+*.cover
+.pytest_cache/
+*.csv
+*.xlsx
+*.json
+*.png
+*.log
