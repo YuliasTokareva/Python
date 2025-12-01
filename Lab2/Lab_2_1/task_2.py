@@ -19,35 +19,30 @@ else:
     else:
         print("Список чисел:", numbers)
 
-        # 1. Уникальные числа
+        # 1-2. Уникальные числа и повторяющиеся числа
         unique = []
-        for x in numbers:
-            found = False
-            for u in unique:
-                if x == u:
-                    found = True
-            if not found:
-                unique.append(x)
-        print("\n1. Уникальные числа:", unique)
-
-        # 2. Повторяющиеся числа
         repeating = []
+        non_repeating = []
         for x in numbers:
+            is_new = True
+            for d in non_repeating:
+                if x == d:
+                    is_new = False
+                    break
+            if is_new:
+                non_repeating.append(x)
+
+        for val in non_repeating:
             count = 0
-            for y in numbers:
-                if y == x:
+            for x in numbers:
+                if x == val:
                     count = count + 1
-            if count > 1:
-                already = False
-                for r in repeating:
-                    if r == x:
-                        already = True
-                if not already:
-                    repeating.append(x)
-        if len(repeating) == 0:
-            print("\n2. Повторяющиеся числа: нет")
-        else:
-            print("\n2. Повторяющиеся числа:", repeating)
+            if count == 1:
+                unique.append(val)
+            else:
+                repeating.append(val)
+        print("\n1. Уникальные числа:", unique if unique else "нет")
+        print("2. Повторяющиеся числа:", repeating if repeating else "нет")
 
         # 3. Чётные и нечётные (только целые)
         evens = []
