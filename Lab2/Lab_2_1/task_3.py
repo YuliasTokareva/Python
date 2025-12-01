@@ -1,36 +1,28 @@
-s = input("Введите числа через пробел: ")
-parts = s.split()
+input_str = input("Введите числа через пробел: ")
+number_str = input_str.split()
 
-# Переведу строки в числа
-numbers = []
-for part in parts:
-            num = float(part)
-            numbers.append(num)
-print("Ваши числа:", parts)
-
-# самое большое
-max1 = parts[0]
-for x in parts:
-    if x > max1:
-        max1 = x
-
-#список без самого большого числа
-parts_bez_max = []
-for x in parts:
-    if x != max1:
-        parts_bez_max.append(x)
-
-#если получился пустой список — значит, все числа были одинаковые
-if len(parts_bez_max) == 0:
-    print("Второго по величине числа нет.")
+if not number_str:
+    print("Пусто.")
 else:
-    #ищем самое большое в этом новом списке
-    max2 = parts_bez_max[0]
-    for x in parts_bez_max:
-        if x > max2:
-            max2 = x
+    numbers = []
+    for s in number_str:
+        numbers.append(float(s))
 
-    if max2 == int(max2):
-        max2 = int(max2)
+    print("Числа:", numbers)
 
-    print("Второе по величине число:", max2)
+    max_val = numbers[0]
+    second_max_val = None
+    for n in numbers:
+        if n > max_val:
+            second_max_val = max_val
+            max_val = n
+        elif n < max_val:
+            if second_max_val is None or n > second_max_val:
+                second_max_val = n
+
+    if second_max_val is None:
+        print("Второе по величине число не найдено.")
+    else:
+        if second_max_val == int(second_max_val):
+            second_max_val = int(second_max_val)
+        print("Второе по величине число:", second_max_val)
