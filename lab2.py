@@ -1,99 +1,132 @@
 #создаем некоторую структуру в которой будет хранится сделуюзая информация: тема проекта. состав команды которая будет
 #выполнять этот проект через пользовательский ввод можно добавить тему
 #удалить тему жобавить игроков и ужалить игроков и итоговый вариант должен выводится в файл
-n = int(input("Колличество команд:"))
-proect = []
-for i in range(1, n + 1):
-    tema = input(f"Введите тему {i}: ")
-    sostav = input(f"Введите состав {i}: ")
-    proect.append({
-        "тема": tema,
-        "состав": sostav
-    })
+projects = {}
 
 def show_all():
-    if not proect:
+    if not projects:
         print("Список пуст.")
     else:
         print("\n--- Проект ---")
-        for i, pro in enumerate(proect, 1):
-            print(f"{i}. Тема: {pro['тема']}, Состав: {pro['состав']}")
+        for i, (tema, members) in enumerate(projects.items(), 1):
+            print(f"{i}. Тема: {tema}")
+            print(f" Состав: {', '.join(members) if members else '-'}")
 
-def find_by_tema(tema):
-    for pro in proect:
-        if pro["тема"] == tema:
-            return pro
-    return None
+def search_project():
+    tema = input("Введите тему для поиска: ").strip()
+    if tema in projects:
+        members = projects[tema]
+        print(f"Найдено:\nТема: {tema}\nСостав: {', '.join(members) if members else '-'}")
+    else:
+        print("Проект с такой темой не найден.")
 
-def add_proect():
-    tema = input("Тема: ").strip()
-    if find_by_tema(tema):
+def add_project():
+    tema = input("Тема для нового проекта: ").strip()
+    if tema in projects:
         print("Такая тема  уже существует!")
         return
-    sostav = input("Состав: ").strip()
-    proect.append({
-        "тема": tema,
-        "состав": sostav
-    })
+    sostav_str = input("Состав команды (через запятую): ").strip()
+    members = [name.strip() for name in sostav_str.split(',') if name.strip()]
+    projects[tema] = members
     print("Добавлено.")
 
-def update_proect():
-    tema = input("Тема для изменения: ").strip()
-    pro = find_by_tema(tema)
-    if not pro:
+def update_project():
+    old_tema = input("Тема для изменения: ").strip()
+    if old_tema not in projects:
         print("Не найдено.")
         return
-    print(f"Текущие данные: {pro}")
-    new_sostav = input("Новый состав (Enter — оставить): ").strip()
-    if new_sostav:
-        pro["состав"] = str(new_sostav)
-    print("Данные обновлены.")
+    new_tema = input("Новая тема: ").strip()
+    if new_tema in projects:
+        print("Ошибка: проект с такой темой уже существует.")
+        return
+    projects[new_tema] = projects.pop(old_tema)
+    print(f"Тема изменена: {new_tema}")
 
-def remove_proect():
+def manage_team():
+    tema = input("Тема: ").strip()
+    if tema not in projects:
+        print("Не найдено.")
+        return
+    while True:
+        print(f"\n --- Состав проекта: {tema} ---")
+        members = projects[tema]
+        if members:
+            for i, name in enumerate(members, 1):
+                print(f"{i}. {name}")
+        else:
+            print("Ничего не найдено.")
+
+        print("\n1. Добавить участника")
+        print("2. Удалить участника")
+        print("3. Назад")
+        choice = input("Выбор: ").strip()
+
+        if choice == "1":
+            name = input("Имя нового участника: ").strip()
+            if name in members:
+                print("Этот участник уже в команде")
+            else:
+                members.append(name)
+                print(f"Участник: {name} добавлен.")
+
+        elif choice == "2":
+            name = input("Имя участника для удаления: ").strip()
+            if name in members:
+                members.remove(name)
+                print(f"Участник: {name} удален.")
+            else:
+                print("Такого участника нет в команде.")
+
+        elif choice == "3":
+            break
+        else:
+            print("Неверный выбор.")
+
+def remove_project():
     tema = input("Тема для удаления: ").strip()
-    for i, pro in enumerate(proect):
-        if pro["тема"] == tema:
-            del proect[i]
-            print("Удалено.")
-            return
-    print("Не найден.")
-
-def search_proect():
-    tema = input("Введите тему для поиска: ").strip()
-    pro = find_by_tema(tema)
-    if pro:
-        print("Найдено:", pro)
+    if tema in projects:
+        del projects[tema]
+        print("Удалено.")
     else:
-        print("Проект не найден.")
+        print("Не найден.")
 
+def save_project():
+    if not projects:
+        print("Нет данных для сохранения.")
+        return
+    with open("projects.txt", "w", encoding="utf-8") as f:
+        for tema, members in projects.items():
+            f.write(f"Тема: {tema}")
+            f.write(f"Состав: {', '.join(members) if members else '-'}")
+    print("Сохранено в projects.txt")
 
 while True:
     print("\n--- Меню ---")
     print("1. Показать все")
     print("2. Найти по теме")
-    print("3. Добавить")
-    print("4. Изменить")
-    print("5. Удалить")
-    print("6. Сохранить в файл")
-    print("7. Выход")
+    print("3. Добавить новый проект")
+    print("4. Изменить тему проекта")
+    print("5. Изменить состав команды")
+    print("6. Удалить")
+    print("7. Сохранить в файл")
+    print("8. Выход")
     choice = input("Выбор: ").strip()
 
     if choice == "1":
         show_all()
     elif choice == "2":
-        search_proect()
+        search_project()
     elif choice == "3":
-        add_proect()
+        add_project()
     elif choice == "4":
-        update_proect()
+        update_project()
     elif choice == "5":
-        remove_proect()
+        manage_team()
     elif choice == "6":
-        with open("projects.txt", "w", encoding="utf-8") as f:
-            for pro in proect:
-                f.write(f"Тема: {pro['тема']},Состав: {pro['состав']}")
-        print("Сохранено в projects.txt")
+        remove_project()
     elif choice == "7":
+        save_project()
+    elif choice == "8":
         print("До свидания!")
         break
     else:
