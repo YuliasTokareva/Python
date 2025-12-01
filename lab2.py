@@ -1,21 +1,15 @@
 #создаем некоторую структуру в которой будет хранится сделуюзая информация: тема проекта. состав команды которая будет
 #выполнять этот проект через пользовательский ввод можно добавить тему
 #удалить тему жобавить игроков и ужалить игроков и итоговый вариант должен выводится в файл
-n = int(input("Колличество участников команды:"))
-r = []
+n = int(input("Колличество команд:"))
+proect = []
 for i in range(1, n + 1):
     tema = input(f"Введите тему {i}: ")
     sostav = input(f"Введите состав {i}: ")
-    r.append({
+    proect.append({
         "тема": tema,
         "состав": sostav
     })
-
-
-proect = [
-    {"тема": "Машинное обучение", "состав": "Маша, Вика, Ксюша"},
-    {"тема": "Числовые методы", "состав": "Паша, Даник, Стас"}
-]
 
 def show_all():
     if not proect:
@@ -23,45 +17,39 @@ def show_all():
     else:
         print("\n--- Проект ---")
         for i, pro in enumerate(proect, 1):
-            print(f"{i}. {pro['тема']}, {pro['состав']}")
+            print(f"{i}. Тема: {pro['тема']}, Состав: {pro['состав']}")
 
 def find_by_tema(tema):
     for pro in proect:
-        if pro["Тема"] == tema:
+        if pro["тема"] == tema:
             return pro
     return None
 
-def add_employee():
+def add_proect():
     tema = input("Тема: ").strip()
     if find_by_tema(tema):
         print("Такая тема  уже существует!")
         return
     sostav = input("Состав: ").strip()
-    try:
-        proect.append({
-            "Тема": tema,
-            "Состав": sostav
-        })
-        print("Добавлено.")
-    except ValueError:
-        print("Неправильный ввод данных.")
+    proect.append({
+        "тема": tema,
+        "состав": sostav
+    })
+    print("Добавлено.")
 
-def update_employee():
+def update_proect():
     tema = input("Тема для изменения: ").strip()
     pro = find_by_tema(tema)
     if not pro:
         print("Не найдено.")
         return
     print(f"Текущие данные: {pro}")
-    new_sostav = input("Новая должность (Enter — оставить): ").strip()
+    new_sostav = input("Новый состав (Enter — оставить): ").strip()
     if new_sostav:
-        try:
-            pro["состав"] = str(new_sostav)
-        except ValueError:
-            print("Неправильный ввод данных. Не изменено.")
+        pro["состав"] = str(new_sostav)
     print("Данные обновлены.")
 
-def remove_employee():
+def remove_proect():
     tema = input("Тема для удаления: ").strip()
     for i, pro in enumerate(proect):
         if pro["тема"] == tema:
@@ -70,23 +58,24 @@ def remove_employee():
             return
     print("Не найден.")
 
-def search_employee():
+def search_proect():
     tema = input("Введите тему для поиска: ").strip()
     pro = find_by_tema(tema)
     if pro:
         print("Найдено:", pro)
     else:
-        print("Сотрудник не найден.")
+        print("Проект не найден.")
 
 
 while True:
     print("\n--- Меню ---")
-    print("1. Показать всех")
+    print("1. Показать все")
     print("2. Найти по теме")
     print("3. Добавить")
     print("4. Изменить")
     print("5. Удалить")
-    print("6. Выход")
+    print("6. Сохранить в файл")
+    print("7. Выход")
     choice = input("Выбор: ").strip()
 
     if choice == "1":
@@ -100,14 +89,14 @@ while True:
     elif choice == "5":
         remove_proect()
     elif choice == "6":
-        print("До свидания!")
-
-    elif choice == "7":
-        with open("employees.txt", "w", encoding="utf-8") as f:
+        with open("projects.txt", "w", encoding="utf-8") as f:
             for pro in proect:
-                f.write(f"{pro['тема']},{pro['состав']}")
-        print("Сохранено в employees.txt")
+                f.write(f"Тема: {pro['тема']},Состав: {pro['состав']}")
+        print("Сохранено в projects.txt")
+    elif choice == "7":
+        print("До свидания!")
         break
-        print("Ничего не найдено.")
+    else:
+        print("Ничего не найдено. Попробуйте снова.")
 
 
