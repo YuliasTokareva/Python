@@ -30,18 +30,6 @@ def add_project():
     projects[tema] = members
     print("Добавлено.")
 
-def update_project():
-    old_tema = input("Тема для изменения: ").strip()
-    if old_tema not in projects:
-        print("Не найдено.")
-        return
-    new_tema = input("Новая тема: ").strip()
-    if new_tema in projects:
-        print("Ошибка: проект с такой темой уже существует.")
-        return
-    projects[new_tema] = projects.pop(old_tema)
-    print(f"Тема изменена: {new_tema}")
-
 def manage_team():
     tema = input("Тема: ").strip()
     if tema not in projects:
@@ -105,13 +93,11 @@ while True:
     print("1. Показать все")
     print("2. Найти по теме")
     print("3. Добавить новый проект")
-    print("4. Изменить тему проекта")
-    print("5. Изменить состав команды")
-    print("6. Удалить")
-    print("7. Сохранить в файл")
-    print("8. Выход")
+    print("4. Изменить состав команды")
+    print("5. Удалить")
+    print("6. Сохранить в файл")
+    print("7. Выход")
     choice = input("Выбор: ").strip()
-
     if choice == "1":
         show_all()
     elif choice == "2":
@@ -119,14 +105,12 @@ while True:
     elif choice == "3":
         add_project()
     elif choice == "4":
-        update_project()
-    elif choice == "5":
         manage_team()
-    elif choice == "6":
+    elif choice == "5":
         remove_project()
-    elif choice == "7":
+    elif choice == "6":
         save_project()
-    elif choice == "8":
+    elif choice == "7":
         print("До свидания!")
         break
     else:
