@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from faker import Faker
-import seaborn as sns
 
 fake = Faker('ru_RU')
 
@@ -21,18 +20,25 @@ specialties = [
 students = []
 print("Генерация данных...")
 
-for _ in range(650):
+for _ in range(150):
     year = np.random.choice(years)
     form = np.random.choice(forms)
-    specialty = np.random.choice(specialties)
-
-    # баллы ЦТ
-    ct_math = np.random.randint(20, 101)
-    ct_physics = np.random.randint(20, 101)
-    ct_language = np.random.randint(25, 101)
+    specialty = np.random.choice(specialties, p=[0.35, 0.25, 0.15, 0.1, 0.1, 0.05])
 
     # средний балл аттестата
-    diploma_avg = round(np.random.uniform(5.0, 10.0), 1)
+    diploma_avg = round(np.random.normal(loc=7.0, scale=2.8), 1)
+    diploma_avg = np.clip(diploma_avg, 4.0, 10.0)
+
+    base_score = diploma_avg * 8
+
+    # баллы ЦТ
+    ct_math = round(np.random.normal(loc=base_score, scale=30), 1)
+    ct_physics = round(np.random.normal(loc=base_score, scale=28), 1)
+    ct_language = round(np.random.normal(loc=base_score, scale=20), 1)
+
+    ct_math = np.clip(ct_math, a_min=20, a_max=100)
+    ct_physics = np.clip(ct_physics, a_min=20, a_max=100)
+    ct_language = np.clip(ct_language, a_min=25, a_max=100)
 
     # щкольный балл = аттестат * 10
     school_score = round(diploma_avg * 10, 1)
@@ -63,7 +69,7 @@ df = pd.DataFrame(students)
 plt.figure(figsize=(10, 5))
 subjects = ['ЦТ Математика', 'ЦТ Физика', 'ЦТ Язык']
 for subject in subjects:
-    yearly = df.groupby('Год поступления')[subject].mean()
+    yearly = df.groupby('Год поступления')[subject].median()
     plt.plot(yearly.index, yearly.values, marker='o', label=subject)
     plt.xticks(years)
 plt.title('Динамика среднего балла по предметам ЦТ')
@@ -76,7 +82,7 @@ plt.show()
 
 # динамика среднего балла аттестата
 plt.figure(figsize=(8, 4))
-diploma_trend = df.groupby('Год поступления')['Балл аттестата'].mean()
+diploma_trend = df.groupby('Год поступления')['Балл аттестата'].median()
 plt.plot(diploma_trend.index, diploma_trend.values, marker='s', color='green')
 plt.xticks(years)
 plt.title('Динамика среднего балла аттестата')
@@ -88,7 +94,7 @@ plt.show()
 
 # динамика проходного балла
 plt.figure(figsize=(8, 4))
-passing = df.groupby('Год поступления')['Общий балл'].quantile(0.9)
+passing = df.groupby('Год поступления')['Общий балл'].quantile(0.8)
 plt.plot(passing.index, passing.values, marker='D', color='red')
 plt.xticks(years)
 plt.title('Динамика проходного балла')
@@ -101,7 +107,7 @@ plt.show()
 # количество поступивших по специальностям
 plt.figure(figsize=(11, 5))
 spec_counts = df['Специальность'].value_counts()
-plt.barh(spec_counts.index, spec_counts.values, color='lightcoral')
+plt.barh(spec_counts.index, spec_counts.values, color='coral')
 plt.title('Количество поступивших по специальностям')
 plt.xlabel('Число студентов')
 plt.tight_layout()
