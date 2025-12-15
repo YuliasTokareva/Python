@@ -2,7 +2,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
+from matplotlib.backends.backend_pdf import PdfPages
 
+sns.set_style("whitegrid")
+plt.rcParams['figure.figsize'] = (10.0, 6.0)
 df = pd.read_excel('s7_data_sample_rev4_50k.xlsx', sheet_name='DATA')
 
 df['ISSUE_DATE'] = pd.to_datetime(df['ISSUE_DATE'])
@@ -44,104 +47,114 @@ df['Лояльность'] = df['FFP_FLAG'].map(ffp_names).fillna('Нет')
 
 print("Данные подготовлены.")
 
+#PDF-ФАЙЛА
+pdf = PdfPages('отчет_авиабилеты.pdf')
+
+# Статистика в виде текста
+fig, ax = plt.subplots(figsize=(10, 8))
+stats_text = df['REVENUE_AMOUNT'].describe().round(2).to_string()
+ax.text(0.1, 0.95, "Описательная статистика:", fontsize=14, fontweight='bold', transform=ax.transAxes)
+ax.text(0.1, 0.85, stats_text, fontsize=11, fontfamily='monospace', transform=ax.transAxes, verticalalignment='top')
+ax.axis('off')
+pdf.savefig(fig, bbox_inches='tight')
+plt.close()
+
 # Описательная статистика
 print("1. Описательная статистика ")
-stats = df['REVENUE_AMOUNT'].describe()
-print(f"Средняя цена билета: {stats['mean']:.2f} руб.")
-print(f"Медиана: {stats['50%']:.2f} руб.")
-print(f"Минимум: {stats['min']:.2f} руб.")
-print(f"Максимум: {stats['max']:.2f} руб.")
-print(f"Стандартное отклонение: {stats['std']:.2f} руб.")
+print(df['REVENUE_AMOUNT'].describe().round(2))
 
 # Аэропорты
-plt.figure(figsize=(14, 5))
+fig, ax = plt.subplots(1, 2, figsize=(16.0, 6.0))
 top_orig = df['ORIG_CITY_CODE'].value_counts().head(10)
 top_dest = df['DEST_CITY_CODE'].value_counts().head(10)
 
-plt.subplot(1, 2, 1)
-top_orig.plot(kind='bar', color='skyblue')
-plt.title('Топ-10 городов отправления')
-plt.xlabel('Код аэропорта')
-plt.ylabel('Число билетов')
-plt.xticks(rotation=45, ha='right')
+sns.barplot(x=top_orig.index, y=top_orig.values, ax=ax[0], color='blue')
+ax[0].set_title('Топ-10 городов отправления')
+ax[0].set_xlabel('Код аэропорта')
+ax[0].tick_params(axis='x', rotation=45)
+ax[0].set_ylabel('Число билетов')
+ax[0].tick_params(axis='y', rotation=90)
 
-plt.subplot(1, 2, 2)
-top_dest.plot(kind='bar', color='lightcoral')
-plt.title('Топ-10 городов назначения')
-plt.xlabel('Код аэропорта')
-plt.ylabel('Число билетов')
-plt.xticks(rotation=45, ha='right')
-
+sns.barplot(x=top_dest.index, y=top_dest.values, ax=ax[1], color='coral')
+ax[1].set_title('Топ-10 городов назначения')
+ax[1].set_xlabel('Код аэропорта')
+ax[1].tick_params(axis='x', rotation=45)
+ax[1].set_ylabel('Число билетов')
+ax[1].tick_params(axis='y', rotation=90)
 plt.tight_layout()
-plt.show()
+pdf.savefig(bbox_inches='tight')
+plt.close()
 
 #Сезонность и количество перелётов
 
-monthly_flights = df.groupby('Месяц').size()
-monthly_revenue = df.groupby('Месяц')['REVENUE_AMOUNT'].sum()
+monthly = df.groupby('Месяц').agg(
+    перелетов= ('REVENUE_AMOUNT', 'size'),
+    выручка=('REVENUE_AMOUNT', 'sum'),
+    средний_чек=('REVENUE_AMOUNT', 'mean')
+).reset_index()
 
-plt.figure(figsize=(14, 5))
-
-plt.subplot(1, 2, 1)
-monthly_flights.plot(marker='o', color='purple')
-plt.title('Количество перелётов по месяцам')
-plt.xlabel('Месяц')
-plt.ylabel('Число перелётов')
-plt.grid(True)
-
-plt.subplot(1, 2, 2)
-monthly_revenue.plot(marker='s', color='green')
-plt.title('Выручка по месяцам')
-plt.xlabel('Месяц')
-plt.ylabel('Выручка')
-plt.grid(True)
-
+fig, ax = plt.subplots(1, 3, figsize=(16.0, 6.0))
+sns.lineplot(data=monthly, x='Месяц', y='перелетов', marker='o', ax=ax[0])
+ax[0].set_title('Сезонность: колл. перелетов')
+sns.lineplot(data=monthly, x='Месяц', y='выручка', marker='s', ax=ax[1])
+ax[1].set_title('Сезонность: выручка')
+sns.lineplot(data=monthly, x='Месяц', y='средний_чек', marker='D', ax=ax[2])
+ax[2].set_title('Сезонность: средний_чек')
 plt.tight_layout()
-plt.show()
+pdf.savefig(bbox_inches='tight')
+plt.close()
 
 # 4. Пассажиры и лояльность
-plt.figure(figsize=(14, 5))
+fig, ax = plt.subplots(1, 2, figsize=(14.0, 6.0))
+sns.countplot(data=df, y='Тип пассажира', ax=ax[0], color='green')
+ax[0].set_title('Распределение типов пассажиров')
 
-plt.subplot(1, 2, 1)
-pax_counts = df['Тип пассажира'].value_counts()
-pax_counts.plot(kind='bar', color='mediumseagreen')
-plt.title('Распределение типов пассажиров')
-plt.xlabel('Тип пассажира')
-plt.ylabel('Количество')
-plt.xticks(rotation=45, ha='right')
-
-plt.subplot(1, 2, 2)
-ffp_counts = df['Лояльность'].value_counts()
-ffp_counts.plot(kind='bar', color='goldenrod')
-plt.title('Участие в программе лояльности')
-plt.xlabel('Участие')
-plt.ylabel('Количество')
-plt.xticks(rotation=0)
-
+sns.countplot(data=df, y='Лояльность', ax=ax[1], color='green')
+ax[1].set_title('Участие в программе лояльности')
 plt.tight_layout()
-plt.show()
+pdf.savefig(bbox_inches='tight')
+plt.close()
 
 # 5. Способы оплаты
-
-fop_counts = df['Способ оплаты'].value_counts()
-
-plt.figure(figsize=(10, 6))
-fop_counts.plot(kind='barh', color='steelblue')  # горизонтальный график
+plt.figure(figsize=(10, 8))
+sns.countplot(data=df, y='Способ оплаты', color='steelblue')  # горизонтальный график
 plt.title('Распределение способов оплаты')
 plt.xlabel('Количество транзакций')
-plt.ylabel('Способ оплаты')
 plt.tight_layout()  # автоматически подгоняет подписи
-plt.show()
+pdf.savefig(bbox_inches='tight')
+plt.close()
 
-#  6. Предсказание
-avg_by_month = df.groupby('Месяц')['REVENUE_AMOUNT'].mean()
+#  6. Способы оплаты
+plt.figure(figsize=(12, 6))
+sns.boxplot(data=df, y='Способ оплаты',x='REVENUE_AMOUNT', showfliers=False, color='coral')  # горизонтальный график
+plt.title('Цена билета по способу оплаты', fontsize=14, pad=20)
+plt.xlabel('Цена', fontsize=12)
+plt.ylabel('Способ оплаты', fontsize=12)
+plt.tight_layout()  # автоматически подгоняет подписи
+pdf.savefig(bbox_inches='tight')
+plt.close()
 
-plt.figure(figsize=(10, 5))
-avg_by_month.plot(marker='D', color='red', linewidth=2)
-plt.title('Средний чек по месяцам (прогноз на основе данных)')
+from scipy import stats
+slope, intercept, r_value, p_value, std_err = stats.linregress(monthly['Месяц'], monthly['выручка'])
+monthly['trend'] = intercept + slope * monthly['Месяц']
+monthly['forecast'] = monthly['trend']
+
+plt.figure(figsize=(10, 6))
+plt.plot(monthly['Месяц'], monthly['выручка'], 'o-', label='Факт')
+plt.plot(monthly['Месяц'], monthly['trend'], 'r--', label='Тренд')
+
+next_month = 1
+forecast_val = intercept + slope * next_month
+plt.plot([12, next_month], [monthly['trend'].iloc[-1], forecast_val], 'r--', alpha=0.7)
+plt.scatter(next_month, forecast_val, color='red', s=100, zorder=5, label=f'Прогноз (мес. {next_month})')
+plt.title('Прогноз выручки на следующий месяц')
 plt.xlabel('Месяц')
-plt.ylabel('Средний чек')
+plt.ylabel('Выручка')
+plt.legend()
 plt.grid(True)
-plt.show()
+plt.tight_layout()
+pdf.savefig(bbox_inches='tight')
+plt.close()
+pdf.close()
 
 print(" Анализ завершён!")
