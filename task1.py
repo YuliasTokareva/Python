@@ -95,13 +95,16 @@ plt.show()
 # динамика проходного балла
 plt.figure(figsize=(8, 4))
 passing = df.groupby('Год поступления')['Общий балл'].quantile(0.8)
-plt.plot(passing.index, passing.values, marker='D', color='red')
+years_list = passing.index.tolist()
+scores_list = passing.values
+plt.bar(passing.index, passing.values, color='red')
 plt.xticks(years)
 plt.title('Динамика проходного балла')
 plt.xlabel('Год')
 plt.ylabel('Балл')
 plt.ylim(0, 400)
-plt.grid(True)
+plt.grid(axis='y', linestyle='--',alpha=0.5)
+plt.tight_layout()
 plt.show()
 
 # количество поступивших по специальностям
